@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Toast;
 import com.hw.photomovie.PhotoMovie;
 import com.hw.photomovie.PhotoMovieFactory;
@@ -230,6 +231,9 @@ public class DemoPresenter implements MovieFilterView.FilterCallback, IMovieTime
             @Override
             public void onRecordFinish(boolean success) {
                 File outputFile = file;
+
+                Log.i("lsdfdf", "onRecordFinish: " + outputFile.getAbsolutePath());
+
                 long recordEndTime = System.currentTimeMillis();
                 MLog.i("Record", "record:" + (recordEndTime - startRecodTime));
                 dialog.dismiss();
@@ -238,12 +242,9 @@ public class DemoPresenter implements MovieFilterView.FilterCallback, IMovieTime
                     
                     mDemoView.getActivity().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
 
-                    
-                    Intent intent = new Intent();
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent.setAction(Intent.ACTION_VIEW);
-                    String type = "video/*";
-                    intent.setDataAndType(Uri.fromFile(outputFile), type);
+
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(outputFile.getAbsolutePath()));
+                    intent.setDataAndType(Uri.parse(outputFile.getAbsolutePath()), "video/mp4");
                     mDemoView.getActivity().startActivity(intent);
                 } else {
                     Toast.makeText(mDemoView.getActivity().getApplicationContext(), "com.hw.photomovie.record error!", Toast.LENGTH_LONG).show();
