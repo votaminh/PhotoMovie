@@ -30,8 +30,8 @@ public class DemoActivity extends AppCompatActivity implements IDemoView, MovieB
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
     private static final int REQUEST_MUSIC = 234;
-    private DemoPresenter mDemoPresenter = new DemoPresenter();
-    private GLTextureView mGLTextureView;
+    private DemoPresenter mDemoPresenter;
+//    private GLTextureView mGLTextureView;
     private MovieFilterView mFilterView;
     private MovieTransferView mTransferView;
     private MovieBottomView mBottomView;
@@ -45,11 +45,11 @@ public class DemoActivity extends AppCompatActivity implements IDemoView, MovieB
         AppResources.getInstance().init(getResources());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_demo);
-        mGLTextureView = findViewById(R.id.gl_texture);
+        mDemoPresenter = new DemoPresenter(this);
+//        mGLTextureView = findViewById(R.id.gl_texture);
         mBottomView = findViewById(R.id.movie_bottom_layout);
         mSelectView = findViewById(R.id.movie_add);
         mFloatAddView = findViewById(R.id.movie_add_float);
-        mDemoPresenter.attachView(this);
         mBottomView.setCallback(this);
 
         View.OnClickListener onClickListener = new View.OnClickListener() {
@@ -73,13 +73,7 @@ public class DemoActivity extends AppCompatActivity implements IDemoView, MovieB
 
     @Override
     public GLTextureView getGLView() {
-        return mGLTextureView;
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mDemoPresenter.detachView();
+        return null;
     }
 
     private boolean checkInit() {
@@ -111,34 +105,12 @@ public class DemoActivity extends AppCompatActivity implements IDemoView, MovieB
 
     @Override
     public void onTransferClick() {
-        if (checkInit()) {
-            return;
-        }
-        if (mTransferView == null) {
-            ViewStub stub = findViewById(R.id.movie_menu_transfer_stub);
-            mTransferView = (MovieTransferView) stub.inflate();
-            mTransferView.setVisibility(View.GONE);
-            mTransferView.setItemList(mTransfers);
-            mTransferView.setTransferCallback(mDemoPresenter);
-        }
-        mBottomView.setVisibility(View.GONE);
-        mTransferView.show();
+
     }
 
     @Override
     public void onFilterClick() {
-        if (checkInit()) {
-            return;
-        }
-        if (mFilterView == null) {
-            ViewStub stub = findViewById(R.id.movie_menu_filter_stub);
-            mFilterView = (MovieFilterView) stub.inflate();
-            mFilterView.setVisibility(View.GONE);
-            mFilterView.setItemList(mFilters);
-            mFilterView.setFilterCallback(mDemoPresenter);
-        }
-        mBottomView.setVisibility(View.GONE);
-        mFilterView.show();
+
     }
 
     @Override
@@ -146,7 +118,6 @@ public class DemoActivity extends AppCompatActivity implements IDemoView, MovieB
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK && requestCode == REQUEST_MUSIC) {
             Uri uri = data.getData();
-            mDemoPresenter.setMusic(uri);
         } else if (resultCode == RESULT_OK && requestCode == PhotoPicker.REQUEST_CODE) {
             if (data != null) {
                 ArrayList<String> photos = data.getStringArrayListExtra(PhotoPicker.KEY_SELECTED_PHOTOS);
@@ -196,17 +167,4 @@ public class DemoActivity extends AppCompatActivity implements IDemoView, MovieB
         mTransfers = items;
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mDemoPresenter.onPause();
-        mGLTextureView.onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mDemoPresenter.onResume();
-        mGLTextureView.onResume();
-    }
 }
